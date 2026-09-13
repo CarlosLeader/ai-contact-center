@@ -1,23 +1,18 @@
 export type CallStatus =
   | "CALLING"
   | "CONNECTED"
-  | "INCOMING"
   | "IDENTIFICATION_REQUIRED"
   | "IDENTIFYING"
   | "CRM_LOOKUP"
   | "VERIFIED"
-  | "NOT_VERIFIED"
-  | "IN_CONVERSATION"
   | "AI_LISTENING"
   | "AI_PROCESSING"
   | "AI_SPEAKING"
   | "CRM_ACTION"
-  | "PROCESSING"
   | "TRANSFER_PENDING"
   | "TRANSFERRED"
   | "RESOLVED"
   | "CALL_ENDED"
-  | "COMPLETED"
   | "FAILED"
   | "ABANDONED";
 
@@ -28,6 +23,22 @@ export type VerificationStatus =
   | "ADDITIONAL_VERIFICATION"
   | "FAILED"
   | "EXPIRED";
+
+export type CallEventType =
+  | "CALL_STARTED"
+  | "CALL_CONNECTED"
+  | "CALLER_ID_CAPTURED"
+  | "IDENTIFICATION_REQUESTED"
+  | "DTMF_INPUT"
+  | "IDENTITY_VERIFICATION_STARTED"
+  | "IDENTITY_VERIFIED"
+  | "IDENTITY_FAILED"
+  | "CRM_LOOKUP"
+  | "CRM_ACTION"
+  | "AI_RESPONSE"
+  | "TRANSFER_REQUESTED"
+  | "CALL_TRANSFERRED"
+  | "CALL_ENDED";
 
 export interface Customer {
   customerId: string;
@@ -49,6 +60,7 @@ export interface Request {
 
 export interface Ticket {
   ticketId: string;
+  customerId: string;
   title: string;
   priority: "HIGH" | "MEDIUM" | "LOW";
   status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
@@ -91,9 +103,11 @@ export interface CallSimulationState extends Call {
 }
 
 export interface CallEvent {
+  id: string;
+  callId: string;
+  type: CallEventType;
   timestamp: string;
-  event: string;
-  reference?: string;
+  metadata?: Record<string, string | number | boolean>;
 }
 
 export interface CallSummary {

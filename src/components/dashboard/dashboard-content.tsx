@@ -176,18 +176,28 @@ export function DashboardContent() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
               <h2 className="text-lg font-semibold text-slate-50">Recent Activity</h2>
               <div className="mt-4 space-y-4">
-                {recentActivity.map((event) => (
-                  <div key={`${event.timestamp}-${event.event}`} className="flex items-start gap-3">
-                    <div className="mt-1 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400" />
-                    <div className="flex-1 border-l border-slate-700 pl-3">
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{event.timestamp}</p>
-                      <p className="mt-1 text-sm text-slate-200">{event.event}</p>
-                      {event.reference ? (
-                        <p className="mt-1 text-xs text-slate-400">{event.reference}</p>
-                      ) : null}
+                {recentActivity.map((event) => {
+                  const eventReference =
+                    event.metadata?.reference ??
+                    event.metadata?.requestId ??
+                    event.metadata?.customerId ??
+                    event.metadata?.ticketId ??
+                    event.metadata?.callerId ??
+                    event.metadata?.target;
+
+                  return (
+                    <div key={`${event.timestamp}-${event.type}`} className="flex items-start gap-3">
+                      <div className="mt-1 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400" />
+                      <div className="flex-1 border-l border-slate-700 pl-3">
+                        <p className="text-xs uppercase tracking-[0.18em] text-slate-400">{event.timestamp}</p>
+                        <p className="mt-1 text-sm text-slate-200">{event.type.replace(/_/g, " ")}</p>
+                        {eventReference ? (
+                          <p className="mt-1 text-xs text-slate-400">{String(eventReference)}</p>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

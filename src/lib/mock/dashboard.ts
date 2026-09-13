@@ -52,7 +52,7 @@ export const demoCalls: Call[] = [
     callerId: "+1 809 555 1234",
     customerName: "Carlos Gómez",
     customerId: "CLI-10245",
-    status: "IN_CONVERSATION",
+    status: "AI_LISTENING",
     verificationStatus: "VERIFIED",
     duration: "03:21",
     intent: "Consulta de solicitud",
@@ -83,16 +83,47 @@ export const demoCalls: Call[] = [
 ];
 
 export const recentActivity: CallEvent[] = [
-  { timestamp: "10:42:18", event: "Call connected", reference: "CALL-000124" },
   {
-    timestamp: "10:42:21",
-    event: "Caller ID captured",
-    reference: "+1 809 555 1234",
+    id: "evt-activity-1",
+    callId: "CALL-000124",
+    type: "CALL_CONNECTED",
+    timestamp: "10:42:18",
+    metadata: { reference: "CALL-000124" },
   },
-  { timestamp: "10:42:34", event: "Personal ID requested", reference: "CALL-000124" },
-  { timestamp: "10:42:41", event: "Customer verified", reference: "CALL-000124" },
-  { timestamp: "10:43:02", event: "CRM request lookup", reference: "REQ-98421" },
-  { timestamp: "10:43:05", event: "AI response generated" },
+  {
+    id: "evt-activity-2",
+    callId: "CALL-000124",
+    type: "CALLER_ID_CAPTURED",
+    timestamp: "10:42:21",
+    metadata: { reference: "+1 809 555 1234" },
+  },
+  {
+    id: "evt-activity-3",
+    callId: "CALL-000124",
+    type: "IDENTIFICATION_REQUESTED",
+    timestamp: "10:42:34",
+    metadata: { reference: "CALL-000124" },
+  },
+  {
+    id: "evt-activity-4",
+    callId: "CALL-000124",
+    type: "IDENTITY_VERIFIED",
+    timestamp: "10:42:41",
+    metadata: { reference: "CALL-000124" },
+  },
+  {
+    id: "evt-activity-5",
+    callId: "CALL-000124",
+    type: "CRM_LOOKUP",
+    timestamp: "10:43:02",
+    metadata: { requestId: "REQ-98421" },
+  },
+  {
+    id: "evt-activity-6",
+    callId: "CALL-000124",
+    type: "AI_RESPONSE",
+    timestamp: "10:43:05",
+  },
 ];
 
 export const dashboardMetrics: KpiMetric[] = [
@@ -127,9 +158,27 @@ export const demoAgents: Agent[] = [
 ];
 
 export const demoTickets: Ticket[] = [
-  { ticketId: "TCK-1001", title: "Customer verification retry", priority: "HIGH", status: "OPEN" },
-  { ticketId: "TCK-1002", title: "CRM partial response", priority: "MEDIUM", status: "IN_PROGRESS" },
-  { ticketId: "TCK-1003", title: "Transfer summary review", priority: "LOW", status: "RESOLVED" },
+  {
+    ticketId: "TCK-1001",
+    customerId: "CLI-10245",
+    title: "Customer verification retry",
+    priority: "HIGH",
+    status: "OPEN",
+  },
+  {
+    ticketId: "TCK-1002",
+    customerId: "CLI-10245",
+    title: "CRM partial response",
+    priority: "MEDIUM",
+    status: "IN_PROGRESS",
+  },
+  {
+    ticketId: "TCK-1003",
+    customerId: "CLI-20480",
+    title: "Transfer summary review",
+    priority: "LOW",
+    status: "RESOLVED",
+  },
 ];
 
 export const moodIcons: Record<string, LucideIcon> = {

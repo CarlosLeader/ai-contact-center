@@ -14,12 +14,12 @@ import {
 
 import { Badge, StatusBadge } from "@/components/ui/badge";
 import {
+  advanceCallFlow,
   appendDtmfInput,
-  connectCall,
   createDemoCall,
   executeDemoIntent,
+  getCallHistory,
   maskPersonalId,
-  requestIdentification,
   resolveCall,
   submitPersonalId,
 } from "@/lib/call-simulator";
@@ -86,25 +86,17 @@ function toneForVerification(
 
 export function CallSimulator() {
   const [call, setCall] = useState<CallSimulationState | null>(() => createDemoCall());
-  const [history, setHistory] = useState<CallSimulationState[]>([]);
+  const history = getCallHistory();
 
   useEffect(() => {
     if (!call) {
       return;
     }
 
-    if (call.status === "CALLING") {
+    if (call.status === "CALLING" || call.status === "CONNECTED") {
       const timer = window.setTimeout(() => {
-        setCall((current) => (current ? connectCall(current) : null));
-      }, 700);
-
-      return () => window.clearTimeout(timer);
-    }
-
-    if (call.status === "CONNECTED") {
-      const timer = window.setTimeout(() => {
-        setCall((current) => (current ? requestIdentification(current) : null));
-      }, 900);
+        setCall((current) => (current ? advanceCallFlow(current) : null));
+      }, call.status === "CALLING" ? 700 : 900);
 
       return () => window.clearTimeout(timer);
     }
@@ -144,22 +136,7 @@ export function CallSimulator() {
         return null;
       }
 
-      const nextCall =
-        action === "Finalizar llamada"
-          ? resolveCall(current)
-          : executeDemoIntent(current, action);
-
-      if (nextCall.summary) {
-        setHistory((previous) => {
-          if (previous.some((item) => item.callId === nextCall.callId)) {
-            return previous;
-          }
-
-          return [nextCall, ...previous];
-        });
-      }
-
-      return nextCall;
+      return action === "Finalizar llamada" ? resolveCall(current) : executeDemoIntent(current, action);
     });
   };
 
@@ -380,35 +357,55 @@ export function CallSimulator() {
                 {call.events
                   .slice()
                   .reverse()
-                  .map((event, index) => (
-                    <div key={`${event.timestamp}-${index}`} className="border-l border-slate-700 pl-3">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                        {event.timestamp}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-200">{event.event}</p>
-                      {event.reference ? (
-                        <p className="mt-1 text-xs text-slate-400">{event.reference}</p>
-                      ) : null}
-                    </div>
-                  ))}
+                  .map((event, index) => {
+                    const eventReference =
+                      event.metadata?.reference ??
+                      event.metadata?.requestId ??
+                      event.metadata?.customerId ??
+                      event.metadata?.ticketId ??
+                      event.metadata?.callerId ??
+                      event.metadata?.target;
+
+                    return (
+                      <div key={`${event.timestamp}-${index}`} className="border-l border-slate-700 pl-3">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                          {event.timestamp}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-200">{event.type.replace(/_/g, " ")}</p>
+                        {eventReference ? (
+                          <p className="mt-1 text-xs text-slate-400">{String(eventReference)}</p>
+                        ) : null}
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
               <h3 className="text-lg font-semibold text-slate-50">Recent activity</h3>
               <div className="mt-4 space-y-4">
-                {recentActivity.slice(0, 5).map((event) => (
-                  <div key={`${event.timestamp}-${event.event}`} className="flex items-start gap-3 border-l border-slate-700 pl-3">
-                    <div className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{event.timestamp}</p>
-                      <p className="mt-1 text-sm text-slate-200">{event.event}</p>
-                      {event.reference ? (
-                        <p className="mt-1 text-xs text-slate-400">{event.reference}</p>
-                      ) : null}
+                {recentActivity.slice(0, 5).map((event) => {
+                  const eventReference =
+                    event.metadata?.reference ??
+                    event.metadata?.requestId ??
+                    event.metadata?.customerId ??
+                    event.metadata?.ticketId ??
+                    event.metadata?.callerId ??
+                    event.metadata?.target;
+
+                  return (
+                    <div key={`${event.timestamp}-${event.type}`} className="flex items-start gap-3 border-l border-slate-700 pl-3">
+                      <div className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{event.timestamp}</p>
+                        <p className="mt-1 text-sm text-slate-200">{event.type.replace(/_/g, " ")}</p>
+                        {eventReference ? (
+                          <p className="mt-1 text-xs text-slate-400">{String(eventReference)}</p>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
